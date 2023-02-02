@@ -172,7 +172,7 @@ func (g *generatorContext) parseTermNoModifiers(slexer *structLexer, allowUnknow
 		return nil, err
 	}
 	switch t.Type {
-	case '@':
+	case '$':
 		return g.parseCapture(slexer)
 	case scanner.String, scanner.RawString, scanner.Char:
 		return g.parseLiteral(slexer)
@@ -229,7 +229,7 @@ func (g *generatorContext) parseModifier(slexer *structLexer, expr node) (node, 
 	return out, nil
 }
 
-// @<expression> captures <expression> into the current field.
+// $<expression> captures <expression> into the current field.
 func (g *generatorContext) parseCapture(slexer *structLexer) (node, error) {
 	_, _ = slexer.Next()
 	token, err := slexer.Peek()
@@ -237,7 +237,7 @@ func (g *generatorContext) parseCapture(slexer *structLexer) (node, error) {
 		return nil, err
 	}
 	field := slexer.Field()
-	if token.Type == '@' {
+	if token.Type == '$' {
 		_, _ = slexer.Next()
 		n, err := g.parseType(field.Type)
 		if err != nil {
@@ -247,7 +247,7 @@ func (g *generatorContext) parseCapture(slexer *structLexer) (node, error) {
 	}
 	ft := indirectType(field.Type)
 	if ft.Kind() == reflect.Struct && ft != tokenType && ft != tokensType && !implements(ft, captureType) && !implements(ft, textUnmarshalerType) {
-		return nil, fmt.Errorf("%s: structs can only be parsed with @@ or by implementing the Capture or encoding.TextUnmarshaler interfaces", ft)
+		return nil, fmt.Errorf("%s: structs can only be parsed with $$ or by implementing the Capture or encoding.TextUnmarshaler interfaces", ft)
 	}
 	n, err := g.parseTermNoModifiers(slexer, false)
 	if err != nil {
